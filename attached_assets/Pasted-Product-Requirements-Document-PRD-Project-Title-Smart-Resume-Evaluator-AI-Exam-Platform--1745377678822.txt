@@ -1,0 +1,221 @@
+Product Requirements Document (PRD)
+Project Title: Smart Resume Evaluator & AI Exam Platform
+________________________________________
+1. Objective
+To create a web-based recruitment system that allows HR managers or recruiters to:
+•	Upload multiple resumes.
+•	Automatically rank resumes based on a job role using AI.
+•	Provide a score and reasons for each ranking.
+•	Pre-qualify candidates based on location.
+•	Allow candidates to take AI-generated, role-based exams.
+•	Ensure fair assessments using AI proctoring with webcam monitoring and cheating prevention mechanisms.
+________________________________________
+2. Users
+•	Admin/Recruiter
+•	Candidates/Applicants
+________________________________________
+3. Features & Workflow
+________________________________________
+3.1 Resume Upload & Evaluation Module
+Users: Admin
+Features:
+•	Upload multiple resumes (PDF, DOCX).
+•	Specify the job role and key skills.
+•	System extracts information using NLP (e.g., education, experience, skills).
+•	Rank resumes with:
+o	A percentage match.
+o	Clear reasons for rankings (e.g., "matched 4 of 5 key skills", "has more years of experience", etc.).
+o	Highlight of strongest/weakest points per resume.
+Tech Stack Suggestions:
+•	NLP: spaCy, GPT-4, BERT
+•	Backend: Next.Js
+•	Frontend: Next.Js
+•	Resume Parsing: PyMuPDF / Docx / PDFMiner
+________________________________________
+3.2 Pre-Qualification Module
+Users: System (automated), Admin
+Features:
+•	Filter resumes based on location (e.g., country, city, remote).
+•	Show only candidates who match the geo-filter.
+•	Mark candidates as "Qualified for Exam" or "Disqualified".
+Admin Settings:
+•	Define acceptable locations or regions for each job role.
+________________________________________
+3.3 Exam Generation & Management
+Users: Admin, Candidates
+Features:
+•	Admin defines:
+o	Role name
+o	Pass mark (e.g., 70%)
+o	Number of questions (e.g., 20 questions)
+•	GPT generates custom questions based on job field (e.g., Python Developer, Sales Manager).
+•	Multiple-choice and open-ended questions supported.
+Tech Stack Suggestions:
+•	GPT-4 API for generating questions
+•	Exam Interface: Nex.Js
+•	Database: PostgreSQL
+________________________________________
+3.4 AI Proctored Exam System
+Users: Candidates
+Features:
+•	Proctoring via system webcam (requires permissions).
+•	Flagging of suspicious activities such as:
+o	No face in frame.
+o	Multiple faces detected.
+o	Looking away for prolonged periods.
+o	Switching tabs or windows.
+Proctoring Tools:
+•	TensorFlow.js / OpenCV (for face detection)
+•	Browser event tracking (visibility API, dev tools, etc.)
+Cheating Prevention:
+•	Disable copy-paste.
+•	Lock screen/tab (where possible).
+•	AI flags reviewed by Admin after exam.
+________________________________________
+3.5 Admin Dashboard
+Features:
+•	View uploaded resumes and their rankings.
+•	Filter by job role, location, and match score.
+•	View flagged exams and candidate results.
+•	Modify or regenerate exam questions.
+•	Export qualified candidate list.
+________________________________________
+3.6 Candidate Dashboard
+Features:
+•	View exam status (Pending, Scheduled, Completed).
+•	Take proctored exam.
+•	View feedback (if allowed by admin).
+________________________________________
+4. Non-Functional Requirements
+•	Scalability: Should support thousands of resumes and candidates.
+•	Security:
+o	SSL encryption
+o	Secure file storage
+o	GDPR compliance
+•	Performance: Fast resume processing (<10 sec per file)
+•	Cross-browser compatibility: Chrome, Firefox, Edge
+________________________________________
+5. Future Enhancements
+•	Integration with ATS systems like Workable or Greenhouse
+•	AI Interview bot post-exam
+•	Voice command detection for cheating
+•	Real-time feedback via AI tutor
+
+Updated Tech Stack
+Layer	Technology	Description
+Frontend	Next.js 	Handles the UI for resume uploads, dashboards, and exams.
+Backend	Next.js API Routes	Handles resume parsing, ranking logic, pre-qualification, and exam generation.
+Database	MySql or MongoDB	Stores resumes, candidate data, job roles, exam results.
+AI/NLP	OpenAI GPT-4 + spaCy/BERT	For resume ranking and question generation.
+Proctoring	TensorFlow.js + Browser APIs	Used in-browser for webcam-based cheating detection.
+
+MVP Architecture & Code Plan (Next.js Full Stack)
+________________________________________
+🔹 1. Project Structure
+bash
+CopyEdit
+/smart-hire-platform
+├── /app                     # Next.js App Router
+│   ├── /dashboard           # Admin dashboard
+│   ├── /candidate           # Candidate dashboard & exam area
+│   ├── /api
+│   │   ├── /resumes         # Resume upload, parsing, ranking
+│   │   ├── /prequalify      # Location filter
+│   │   ├── /exams           # Exam generation and submission
+│   │   ├── /proctor         # Webcam AI proctoring API (if needed)
+├── /components              # UI components
+├── /lib                     # Utils, parsing, GPT helpers
+├── /public                  # Static files
+├── /styles                  # Tailwind or global styles
+├── /prisma                  # DB schema (if using Prisma with PostgreSQL)
+├── .env                     # Env variables (e.g., DB, OpenAI key)
+├── next.config.js
+________________________________________
+🔹 2. Core Modules & Pages
+➤ Resume Upload & Ranking (Admin)
+•	Page: /dashboard/resumes
+•	Features:
+o	Upload multiple resumes.
+o	Select job role.
+o	Call API: /api/resumes/rank
+o	Display resume scores & ranking reasons.
+➤ Pre-Qualification Filter
+•	Page: /dashboard/prequalify
+•	Features:
+o	Define allowed locations.
+o	Filter resumes based on location.
+o	Move qualified candidates to next stage.
+➤ Exam Generation
+•	Page: /dashboard/exams
+•	Features:
+o	Define job title, number of questions, pass mark.
+o	Auto-generate questions via /api/exams/generate.
+o	Assign to candidates.
+➤ Candidate Exam Portal
+•	Page: /candidate/exam
+•	Features:
+o	See assigned exams.
+o	Start exam (with webcam proctoring).
+o	Submit answers.
+➤ Admin Dashboard
+•	Page: /dashboard
+•	Features:
+o	View all resumes & candidate stages.
+o	See flagged proctoring results.
+o	Export data.
+________________________________________
+🔹 3. Database Schema (Prisma-style)
+ts
+CopyEdit
+model Resume {
+  id         String   @id @default(uuid())
+  name       String
+  fileUrl    String
+  parsedData Json
+  score      Float?
+  reasons    String?
+  location   String
+  createdAt  DateTime @default(now())
+}
+
+model Exam {
+  id         String   @id @default(uuid())
+  role       String
+  questions  Json
+  passMark   Int
+  createdAt  DateTime @default(now())
+}
+
+model Candidate {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String
+  location    String
+  resumeId    String?
+  examId      String?
+  examScore   Int?
+  examPassed  Boolean?
+  flagged     Boolean  @default(false)
+}
+________________________________________
+🔹 4. APIs
+Endpoint	Method	Description
+/api/resumes/upload	POST	Upload resumes
+/api/resumes/rank	POST	Parse + rank using GPT
+/api/prequalify/filter	POST	Filter by location
+/api/exams/generate	POST	Generate exam questions
+/api/exams/submit	POST	Candidate submits exam
+/api/proctor/check	POST	Send proctoring results (optional)
+________________________________________
+🔹 5. AI Integration
+•	Resume Scoring: Use GPT with a system prompt like: "Evaluate this resume against the role of a Frontend Developer. Score from 0–100, and list 3 reasons for your score."
+•	Exam Questions: "Generate 5 MCQs for a Data Analyst role. Each question must include options and the correct answer."
+________________________________________
+🔹 6. Proctoring Plan (Webcam Monitoring)
+•	Use TensorFlow.js in-browser to:
+o	Detect face presence & track.
+o	Count face switches (more than 1 face).
+o	Flag looking away events.
+o	Log window/tab switching.
+•	On submit, attach flags[] to candidate’s result.
+
