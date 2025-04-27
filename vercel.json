@@ -16,7 +16,7 @@
       },
       {
         "source": "/(.*)",
-        "destination": "/dist/index.html"
+        "destination": "/client/index.html"
       }
     ]
   }
