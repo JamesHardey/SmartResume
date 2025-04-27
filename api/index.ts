@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction, Express } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { MySQLStorage } from "./storage/mysql";
+import { registerRoutes } from "../server/routes";
+import { setupVite, serveStatic, log } from "../server/vite";
+import { MySQLStorage } from "../server/storage/mysql";
 
 async function main() {
   const app: Express = express();

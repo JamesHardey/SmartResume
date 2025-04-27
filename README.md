@@ -437,6 +437,7 @@ npm run dev
 cd ../client
 npm run dev
 ```
+## // "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
 
 ## Usage
 
